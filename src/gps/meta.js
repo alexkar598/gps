@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name        My Script
+// @name        GPS
 // @namespace   Violentmonkey Scripts
-// @description This is a userscript.
+// @description Compass userscript
 // @match       *://icope.concordia.ca/myAccount/*
 // @grant       GM_addStyle
 // @version     0.0.0
