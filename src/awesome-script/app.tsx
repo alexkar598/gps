@@ -3,10 +3,10 @@ import gridCss from 'ag-grid-community/styles/ag-grid.css';
 import gridThemeCss from 'ag-grid-community/styles/ag-theme-alpine-no-font.css';
 import type { AgGridSolidProps, AgGridSolidRef } from 'solid-ag-grid';
 import AgGridSolid from 'solid-ag-grid';
-import { Component, createEffect, on } from 'solid-js';
+import { Component, createEffect, createSignal, on, onCleanup } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
 import { render } from 'solid-js/web';
-import { EnrichedPosting, openDb, Posting, toDbPosting } from './db';
+import { EnrichedPosting, exportDb, importDb, openDb, Posting, toDbPosting } from './db';
 import {
   applicationDeadlineSelector,
   applicationStatusSelector,
@@ -18,6 +18,7 @@ import {
   postingTableSelector,
   postingTableStableParentSelector,
   termSelector,
+  topPaginationPanelSelector,
 } from './selectors';
 // global CSS
 import globalCss from './style.css';
@@ -163,6 +164,11 @@ Promise.all([dbPromise, pageLoadPromise])
       const stableParent = document.querySelector<HTMLElement>(postingTableStableParentSelector);
       if (!stableParent) return;
 
+      const settingsPanel = document.createElement('div');
+      const paginationPanel = document.querySelector<HTMLElement>(topPaginationPanelSelector);
+      paginationPanel.insertAdjacentElement('beforebegin', settingsPanel);
+      render(() => <Settings db={db} />, settingsPanel);
+
       const grid = document.createElement('div');
       stableParent.insertAdjacentElement('afterend', grid);
       render(() => <PostingsGrid db={db} />, grid);
@@ -248,4 +254,52 @@ function enrichPostings(db: IDBDatabase, postings: Posting[]): Promise<EnrichedP
 
     transaction.oncomplete = () => resolve(ret);
   });
+}
+
+function Settings(props: { db: IDBDatabase }) {
+  const [copiedText, setCopiedText] = createSignal(false);
+  createEffect(() => {
+    const currentTopic = copiedText();
+
+    if (!currentTopic) return;
+
+    const timeout = setTimeout(() => setCopiedText(false), 5000);
+
+    onCleanup(() => {
+      clearTimeout(timeout);
+    });
+  });
+
+  return (
+    <div>
+      <h5>Settings</h5>
+      <button
+        style={{ 'margin-right': '6px' }}
+        class="btn btn-primary btn-small"
+        onClick={async () => {
+          const data = await exportDb(props.db);
+          await navigator.clipboard.writeText(data);
+          setCopiedText(true);
+        }}
+      >
+        {copiedText() ? 'Copied!' : 'Export'}
+      </button>
+      <button
+        class="btn btn-primary btn-small"
+        onClick={async () => {
+          const data = prompt('Import data');
+          if (!data) return;
+
+          await importDb(props.db, data);
+          enrichPostings(props.db, store.postings)
+            .then((x) => {
+              setStore('postings', x);
+            })
+            .catch(error_handler);
+        }}
+      >
+        Import
+      </button>
+    </div>
+  );
 }

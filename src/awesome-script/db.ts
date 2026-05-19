@@ -64,3 +64,40 @@ export function toDbPosting(x: EnrichedPosting): DbPosting {
     status: x.gps_status,
   };
 }
+
+export async function exportDb(db: IDBDatabase): Promise<string> {
+  const request = db.transaction(['postings'], 'readonly').objectStore('postings').getAll();
+
+  const json = await new Promise<string>((resolve) => {
+    request.onsuccess = () => {
+      resolve(JSON.stringify(request.result));
+    };
+  });
+  const compressedStream = new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'));
+  const compressedBlob = await new Response(compressedStream).blob();
+  return new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      resolve(dataUrl.slice(dataUrl.indexOf('base64,') + 7));
+    };
+    reader.readAsDataURL(compressedBlob);
+  });
+}
+
+export async function importDb(db: IDBDatabase, data: string): Promise<void> {
+  const byteString = atob(data);
+  const dataArray = new Uint8Array(byteString.length);
+  for (let i = 0; i < byteString.length; i++) dataArray[i] = byteString.charCodeAt(i);
+
+  const compressedBlob = new Blob([dataArray]);
+  const decompressedStream = compressedBlob.stream().pipeThrough(new DecompressionStream('gzip'));
+  const importedData = (await new Response(decompressedStream).json()) as DbPosting[];
+
+  const transaction = db.transaction(['postings'], 'readwrite');
+  const postings = transaction.objectStore('postings');
+  importedData.forEach((x) => postings.put(x));
+  return new Promise<void>((resolve) => {
+    transaction.oncomplete = () => resolve();
+  });
+}

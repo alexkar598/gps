@@ -21,3 +21,5 @@ export const internalStatusSelector = organisationSelector + ' ~ *';
 export const locationSelector = internalStatusSelector + ' ~ *';
 // language=css
 export const applicationDeadlineSelector = locationSelector + ' ~ *';
+// language=css
+export const topPaginationPanelSelector = '#postingsTablePlaceholder';
