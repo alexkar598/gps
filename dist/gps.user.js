@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @description Compass userscript
 // @match       *://icope.concordia.ca/myAccount/*
-// @version     0.0.1
+// @version     0.1.0
 // @author      undefined
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/ui@0.7
@@ -627,11 +627,32 @@ function mergeProps(...sources) {
   }
   return target;
 }
+
+const narrowedError = name => `Stale read from <${name}>.`;
 function For(props) {
   const fallback = "fallback" in props && {
     fallback: () => props.fallback
   };
   return createMemo(mapArray(() => props.each, props.children, fallback || undefined));
+}
+function Show(props) {
+  const keyed = props.keyed;
+  const conditionValue = createMemo(() => props.when, undefined, undefined);
+  const condition = keyed ? conditionValue : createMemo(conditionValue, undefined, {
+    equals: (a, b) => !a === !b
+  });
+  return createMemo(() => {
+    const c = condition();
+    if (c) {
+      const child = props.children;
+      const fn = typeof child === "function" && child.length > 0;
+      return fn ? untrack(() => child(keyed ? c : () => {
+        if (!untrack(condition)) throw narrowedError("Show");
+        return conditionValue();
+      })) : child;
+    }
+    return props.fallback;
+  }, undefined, undefined);
 }
 
 const booleans = ["allowfullscreen", "async", "alpha",
@@ -63417,7 +63438,12 @@ async function exportDb(db) {
   const request = db.transaction(['postings'], 'readonly').objectStore('postings').getAll();
   const json = await new Promise(resolve => {
     request.onsuccess = () => {
-      resolve(JSON.stringify(request.result));
+      var _localStorage$getItem;
+      const data = {
+        grid_state: (_localStorage$getItem = localStorage.getItem('gps-postings-grid-state')) != null ? _localStorage$getItem : '{}',
+        postings: request.result
+      };
+      resolve(JSON.stringify(data));
     };
   });
   const compressedStream = new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'));
@@ -63440,9 +63466,12 @@ async function importDb(db, data) {
   const importedData = await new Response(decompressedStream).json();
   const transaction = db.transaction(['postings'], 'readwrite');
   const postings = transaction.objectStore('postings');
-  importedData.forEach(x => postings.put(x));
+  importedData.postings.forEach(x => postings.put(x));
   return new Promise(resolve => {
-    transaction.oncomplete = () => resolve();
+    transaction.oncomplete = () => {
+      localStorage.setItem('gps-postings-grid-state', importedData.grid_state);
+      resolve();
+    };
   });
 }
 
@@ -63491,15 +63520,15 @@ function gatherText(node) {
   return text.join(' ').trim();
 }
 
+var _localStorage$getItem;
 var _tmpl$ = /*#__PURE__*/template(`<div class=ag-theme-alpine-auto-dark style=display:contents>`),
   _tmpl$2 = /*#__PURE__*/template(`<div><h5>Settings</h5><button class="btn btn-primary btn-small"style=margin-right:6px></button><button class="btn btn-primary btn-small">Import`);
 const [store, setStore] = createStore({
   postings: null
 });
+const [gridState, setGridState] = createSignal(JSON.parse((_localStorage$getItem = localStorage.getItem('gps-postings-grid-state')) != null ? _localStorage$getItem : '{}'));
 function PostingsGrid(props) {
-  var _options$columnDefs;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const options = {
+  const options = gridState => ({
     columnDefs: [{
       field: 'applyBtn',
       headerName: 'Actions',
@@ -63571,7 +63600,10 @@ function PostingsGrid(props) {
     }, {
       field: 'applicationDeadline',
       headerName: 'Application Deadline'
-    }],
+    }].map(x => {
+      if ('field' in x) x.tooltipField = x.field;
+      return x;
+    }),
     defaultColDef: {
       flex: 1,
       filter: true,
@@ -63584,11 +63616,9 @@ function PostingsGrid(props) {
     onStateUpdated: event => {
       localStorage.setItem('gps-postings-grid-state', JSON.stringify(event.state));
     },
-    initialState: JSON.parse(localStorage.getItem('gps-postings-grid-state') || '{}'),
+    initialState: gridState,
     rowData: unwrap(store.postings)
-  };
-  (_options$columnDefs = options.columnDefs) == null || _options$columnDefs.forEach(x => {
-    if ('field' in x) x.tooltipField = x.field;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   });
 
   // eslint-disable-next-line no-unassigned-vars
@@ -63602,12 +63632,18 @@ function PostingsGrid(props) {
   // noinspection JSUnusedAssignment
   return (() => {
     var _el$ = _tmpl$();
-    insert(_el$, createComponent(AgGrid, mergeProps(options, {
-      ref(r$) {
-        var _ref$ = grid;
-        typeof _ref$ === "function" ? _ref$(r$) : grid = r$;
-      }
-    })));
+    insert(_el$, createComponent(Show, {
+      get when() {
+        return gridState();
+      },
+      keyed: true,
+      children: currentKey => createComponent(AgGrid, mergeProps(() => options(currentKey), {
+        ref(r$) {
+          var _ref$ = grid;
+          typeof _ref$ === "function" ? _ref$(r$) : grid = r$;
+        }
+      }))
+    }));
     return _el$;
   })();
 }
@@ -63737,10 +63773,11 @@ function Settings(props) {
     };
     insert(_el$4, () => copiedText() ? 'Copied!' : 'Export');
     _el$5.$$click = async () => {
-      var _store$postings;
+      var _localStorage$getItem2, _store$postings;
       const data = prompt('Import data');
       if (!data) return;
       await importDb(props.db, data);
+      setGridState(JSON.parse((_localStorage$getItem2 = localStorage.getItem('gps-postings-grid-state')) != null ? _localStorage$getItem2 : '{}'));
       enrichPostings(props.db, (_store$postings = store.postings) != null ? _store$postings : []).then(x => {
         setStore('postings', x);
       }).catch(error_handler);

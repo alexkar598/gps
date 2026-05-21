@@ -65,12 +65,21 @@ export function toDbPosting(x: EnrichedPosting): DbPosting {
   };
 }
 
+interface DBExport {
+  grid_state: string;
+  postings: DbPosting[];
+}
+
 export async function exportDb(db: IDBDatabase): Promise<string> {
   const request = db.transaction(['postings'], 'readonly').objectStore('postings').getAll();
 
   const json = await new Promise<string>((resolve) => {
     request.onsuccess = () => {
-      resolve(JSON.stringify(request.result));
+      const data: DBExport = {
+        grid_state: localStorage.getItem('gps-postings-grid-state') ?? '{}',
+        postings: request.result,
+      };
+      resolve(JSON.stringify(data));
     };
   });
   const compressedStream = new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'));
@@ -92,12 +101,15 @@ export async function importDb(db: IDBDatabase, data: string): Promise<void> {
 
   const compressedBlob = new Blob([dataArray]);
   const decompressedStream = compressedBlob.stream().pipeThrough(new DecompressionStream('gzip'));
-  const importedData = (await new Response(decompressedStream).json()) as DbPosting[];
+  const importedData = (await new Response(decompressedStream).json()) as DBExport;
 
   const transaction = db.transaction(['postings'], 'readwrite');
   const postings = transaction.objectStore('postings');
-  importedData.forEach((x) => postings.put(x));
+  importedData.postings.forEach((x) => postings.put(x));
   return new Promise<void>((resolve) => {
-    transaction.oncomplete = () => resolve();
+    transaction.oncomplete = () => {
+      localStorage.setItem('gps-postings-grid-state', importedData.grid_state);
+      resolve();
+    };
   });
 }

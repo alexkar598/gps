@@ -3,7 +3,7 @@ import gridCss from 'ag-grid-community/styles/ag-grid.css';
 import gridThemeCss from 'ag-grid-community/styles/ag-theme-alpine-no-font.css';
 import type { AgGridSolidProps, AgGridSolidRef } from 'solid-ag-grid';
 import AgGridSolid from 'solid-ag-grid';
-import { Component, createEffect, createSignal, on, onCleanup } from 'solid-js';
+import { Component, createEffect, createSignal, on, onCleanup, Show } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
 import { render } from 'solid-js/web';
 import { EnrichedPosting, exportDb, importDb, openDb, Posting, toDbPosting } from './db';
@@ -24,97 +24,114 @@ import {
 import globalCss from './style.css';
 // CSS modules
 import { gatherText } from './utils';
+import { ColDef } from 'ag-grid-community/dist/lib/entities/colDef';
+import { GridState } from 'ag-grid-community';
 
 const [store, setStore] = createStore({
   postings: null as null | Array<EnrichedPosting>,
 });
 
+const [gridState, setGridState] = createSignal(
+  JSON.parse(localStorage.getItem('gps-postings-grid-state') ?? '{}') as GridState,
+);
+
 function PostingsGrid(props: { db: IDBDatabase }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const options: AgGridSolidProps<any> = {
-    columnDefs: [
-      {
-        field: 'applyBtn',
-        headerName: 'Actions',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        cellRenderer: (props: any) => {
-          return props.value;
-        },
-      },
-      { field: 'applicationStatus', headerName: 'Application Status', hide: true },
-      {
-        field: 'gps_ref',
-        headerName: 'Reference',
-        editable: true,
-        valueSetter: (params) => {
-          const data = params.data as EnrichedPosting;
+  const options = (gridState: GridState) =>
+    ({
+      columnDefs: (
+        [
+          {
+            field: 'applyBtn',
+            headerName: 'Actions',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            cellRenderer: (props: any) => {
+              return props.value;
+            },
+          },
+          { field: 'applicationStatus', headerName: 'Application Status', hide: true },
+          {
+            field: 'gps_ref',
+            headerName: 'Reference',
+            editable: true,
+            valueSetter: (params) => {
+              const data = params.data as EnrichedPosting;
 
-          const transaction = props.db.transaction(['postings'], 'readwrite');
-          const postings = transaction.objectStore('postings');
-          data.gps_ref = params.newValue;
-          postings.put(toDbPosting(data));
-          setTimeout(() => {
-            params.api.onFilterChanged();
-          });
-          return true;
-        },
-      },
-      {
-        field: 'gps_status',
-        headerName: 'Status',
-        editable: true,
-        valueSetter: (params) => {
-          const data = params.data as EnrichedPosting;
+              const transaction = props.db.transaction(['postings'], 'readwrite');
+              const postings = transaction.objectStore('postings');
+              data.gps_ref = params.newValue;
+              postings.put(toDbPosting(data));
+              setTimeout(() => {
+                params.api.onFilterChanged();
+              });
+              return true;
+            },
+          },
+          {
+            field: 'gps_status',
+            headerName: 'Status',
+            editable: true,
+            valueSetter: (params) => {
+              const data = params.data as EnrichedPosting;
 
-          const transaction = props.db.transaction(['postings'], 'readwrite');
-          const postings = transaction.objectStore('postings');
-          data.gps_status = params.newValue;
-          postings.put(toDbPosting(data));
-          setTimeout(() => {
-            params.api.onFilterChanged();
-          });
-          return true;
-        },
-        cellEditor: 'agSelectCellEditor',
-        cellEditorParams: {
-          values: ['Applied', 'Uninterested', 'Rejected', 'Shortlist', 'Interviewed', 'Offer', ''],
+              const transaction = props.db.transaction(['postings'], 'readwrite');
+              const postings = transaction.objectStore('postings');
+              data.gps_status = params.newValue;
+              postings.put(toDbPosting(data));
+              setTimeout(() => {
+                params.api.onFilterChanged();
+              });
+              return true;
+            },
+            cellEditor: 'agSelectCellEditor',
+            cellEditorParams: {
+              values: [
+                'Applied',
+                'Uninterested',
+                'Rejected',
+                'Shortlist',
+                'Interviewed',
+                'Offer',
+                '',
+              ],
+            },
+          },
+          { field: 'term', headerName: 'Term', hide: true },
+          { field: 'id', headerName: 'ID' },
+          {
+            field: 'jobTitleBtn',
+            headerName: 'Job Title',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            cellRenderer: (props: any) => {
+              return props.value;
+            },
+            valueFormatter: (params) => {
+              return gatherText(params.value);
+            },
+          },
+          { field: 'organization', headerName: 'Organization' },
+          { field: 'location', headerName: 'Location' },
+          { field: 'applicationDeadline', headerName: 'Application Deadline' },
+        ] as ColDef[]
+      ).map((x) => {
+        if ('field' in x) x.tooltipField = x.field;
+        return x;
+      }),
+      defaultColDef: {
+        flex: 1,
+        filter: true,
+        filterParams: {
+          maxNumConditions: 20,
         },
       },
-      { field: 'term', headerName: 'Term', hide: true },
-      { field: 'id', headerName: 'ID' },
-      {
-        field: 'jobTitleBtn',
-        headerName: 'Job Title',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        cellRenderer: (props: any) => {
-          return props.value;
-        },
-        valueFormatter: (params) => {
-          return gatherText(params.value);
-        },
+      domLayout: 'autoHeight',
+      suppressDragLeaveHidesColumns: true,
+      onStateUpdated: (event) => {
+        localStorage.setItem('gps-postings-grid-state', JSON.stringify(event.state));
       },
-      { field: 'organization', headerName: 'Organization' },
-      { field: 'location', headerName: 'Location' },
-      { field: 'applicationDeadline', headerName: 'Application Deadline' },
-    ],
-    defaultColDef: {
-      flex: 1,
-      filter: true,
-      filterParams: {
-        maxNumConditions: 20,
-      },
-    },
-    domLayout: 'autoHeight',
-    suppressDragLeaveHidesColumns: true,
-    onStateUpdated: (event) => {
-      localStorage.setItem('gps-postings-grid-state', JSON.stringify(event.state));
-    },
-    initialState: JSON.parse(localStorage.getItem('gps-postings-grid-state') || '{}'),
-    rowData: unwrap(store.postings),
-  };
-  options.columnDefs?.forEach((x) => {
-    if ('field' in x) x.tooltipField = x.field;
-  });
+      initialState: gridState,
+      rowData: unwrap(store.postings),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }) satisfies AgGridSolidProps<any>;
 
   // eslint-disable-next-line no-unassigned-vars
   let grid!: AgGridSolidRef;
@@ -133,7 +150,9 @@ function PostingsGrid(props: { db: IDBDatabase }) {
   // noinspection JSUnusedAssignment
   return (
     <div class="ag-theme-alpine-auto-dark" style={{ display: 'contents' }}>
-      <AgGrid {...options} ref={grid} />
+      <Show when={gridState()} keyed>
+        {(currentKey) => <AgGrid {...options(currentKey)} ref={grid} />}
+      </Show>
     </div>
   );
 }
@@ -298,6 +317,9 @@ function Settings(props: { db: IDBDatabase }) {
           if (!data) return;
 
           await importDb(props.db, data);
+          setGridState(
+            JSON.parse(localStorage.getItem('gps-postings-grid-state') ?? '{}') as GridState,
+          );
           enrichPostings(props.db, store.postings ?? [])
             .then((x) => {
               setStore('postings', x);
