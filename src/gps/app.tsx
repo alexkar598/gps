@@ -36,7 +36,8 @@ function PostingsGrid(props: { db: IDBDatabase }) {
       {
         field: 'applyBtn',
         headerName: 'Actions',
-        cellRenderer: (props) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        cellRenderer: (props: any) => {
           return props.value;
         },
       },
@@ -84,7 +85,8 @@ function PostingsGrid(props: { db: IDBDatabase }) {
       {
         field: 'jobTitleBtn',
         headerName: 'Job Title',
-        cellRenderer: (props) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        cellRenderer: (props: any) => {
           return props.value;
         },
         valueFormatter: (params) => {
@@ -110,7 +112,7 @@ function PostingsGrid(props: { db: IDBDatabase }) {
     initialState: JSON.parse(localStorage.getItem('gps-postings-grid-state') || '{}'),
     rowData: unwrap(store.postings),
   };
-  options.columnDefs.forEach((x) => {
+  options.columnDefs?.forEach((x) => {
     if ('field' in x) x.tooltipField = x.field;
   });
 
@@ -128,6 +130,7 @@ function PostingsGrid(props: { db: IDBDatabase }) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const AgGrid = AgGridSolid as Component<any>;
+  // noinspection JSUnusedAssignment
   return (
     <div class="ag-theme-alpine-auto-dark" style={{ display: 'contents' }}>
       <AgGrid {...options} ref={grid} />
@@ -166,7 +169,7 @@ Promise.all([dbPromise, pageLoadPromise])
 
       const settingsPanel = document.createElement('div');
       const paginationPanel = document.querySelector<HTMLElement>(topPaginationPanelSelector);
-      paginationPanel.insertAdjacentElement('beforebegin', settingsPanel);
+      paginationPanel!.insertAdjacentElement('beforebegin', settingsPanel);
       render(() => <Settings db={db} />, settingsPanel);
 
       const grid = document.createElement('div');
@@ -176,6 +179,7 @@ Promise.all([dbPromise, pageLoadPromise])
       let tableElement!: HTMLTableElement;
       function updateTable() {
         const newTable = document.querySelector<HTMLTableElement>(postingTableSelector);
+        if (!newTable) return false;
         if (tableElement == newTable) return false;
         tableElement = newTable;
         return true;
@@ -185,9 +189,9 @@ Promise.all([dbPromise, pageLoadPromise])
         if (!updateTable()) return;
 
         {
-          let element = stableParent.querySelector<HTMLElement>(
+          let element = stableParent!.querySelector<HTMLElement>(
             'div.orbis-posting-actions',
-          ).nextSibling;
+          )!.nextSibling;
           while (element) {
             const nextElement = element.nextSibling;
             if ('style' in element) (element as HTMLElement).style.display = 'none';
@@ -200,14 +204,15 @@ Promise.all([dbPromise, pageLoadPromise])
 
         for (const posting of tableElement.querySelectorAll(postingRowSelector)) {
           const item: Posting = {
-            applyBtn: posting.querySelector<HTMLButtonElement>(applyBtnSelector),
+            applyBtn: posting.querySelector<HTMLElement>(applyBtnSelector),
             applicationStatus: gatherText(posting.querySelector(applicationStatusSelector)),
             term: gatherText(posting.querySelector(termSelector)),
-            id: posting.classList
-              .values()
-              .find((x) => x.startsWith('posting'))
-              .slice(7),
-            jobTitleBtn: posting.querySelector<HTMLAnchorElement>(jobTitleSelector)!,
+            id:
+              posting.classList
+                .values()
+                .find((x) => x.startsWith('posting'))
+                ?.slice(7) ?? 'BAD ID',
+            jobTitleBtn: posting.querySelector<HTMLElement>(jobTitleSelector)!,
             organization: gatherText(posting.querySelector(organisationSelector)),
             location: gatherText(posting.querySelector(locationSelector)),
             applicationDeadline: new Date(
@@ -215,9 +220,11 @@ Promise.all([dbPromise, pageLoadPromise])
             ),
           };
           postings.push(item);
-          item.applyBtn.remove();
-          item.jobTitleBtn.remove();
-          item.jobTitleBtn.style['max-width'] = 'revert';
+          item.applyBtn?.remove();
+          if (item.jobTitleBtn != null) {
+            item.jobTitleBtn.remove();
+            item.jobTitleBtn.style.maxWidth = 'revert';
+          }
         }
 
         enrichPostings(db, postings)
@@ -291,7 +298,7 @@ function Settings(props: { db: IDBDatabase }) {
           if (!data) return;
 
           await importDb(props.db, data);
-          enrichPostings(props.db, store.postings)
+          enrichPostings(props.db, store.postings ?? [])
             .then((x) => {
               setStore('postings', x);
             })

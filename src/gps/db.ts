@@ -3,11 +3,11 @@ if (navigator.storage && navigator.storage.persist) {
 }
 
 export interface Posting {
-  applyBtn: HTMLButtonElement;
+  applyBtn: HTMLElement | null;
   applicationStatus: string;
   term: string;
   id: string;
-  jobTitleBtn: HTMLAnchorElement;
+  jobTitleBtn: HTMLElement | null;
   organization: string;
   // internalStatus: string;
   location: string;

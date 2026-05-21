@@ -8,13 +8,8 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "skipLibCheck": true,
-    "lib": [
-      "DOM",
-      "ES6",
-      "DOM.Iterable",
-      "ScriptHost",
-      "ESNext"
-    ]
+    "strict": true,
+    "lib": ["DOM", "ES6", "DOM.Iterable", "ScriptHost", "ESNext"]
   },
   "include": [
     "src/**/*"

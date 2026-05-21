@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @description Compass userscript
 // @match       *://icope.concordia.ca/myAccount/*
-// @version     0.0.0
+// @version     0.0.1
 // @author      undefined
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/ui@0.7
@@ -63475,10 +63475,12 @@ const topPaginationPanelSelector = '#postingsTablePlaceholder';
 var css_248z = ".ag-theme-alpine,.ag-theme-alpine-auto-dark,.ag-theme-alpine-dark{--ag-icon-font-display:none;--ag-icon-image-aggregation:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/aggregation.svg);--ag-icon-image-arrows:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/arrows.svg);--ag-icon-image-asc:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/asc.svg);--ag-icon-image-cancel:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/cancel.svg);--ag-icon-image-chart:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/chart.svg);--ag-icon-image-checkbox-checked:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/checkbox-checked.svg);--ag-icon-image-checkbox-indeterminate:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/checkbox-indeterminate.svg);--ag-icon-image-checkbox-unchecked:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/checkbox-unchecked.svg);--ag-icon-image-color-picker:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/color-picker.svg);--ag-icon-image-columns:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/columns.svg);--ag-icon-image-contracted:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/contracted.svg);--ag-icon-image-copy:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/copy.svg);--ag-icon-image-cross:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/cross.svg);--ag-icon-image-csv:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/csv.svg);--ag-icon-image-cut:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/cut.svg);--ag-icon-image-desc:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/desc.svg);--ag-icon-image-excel:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/excel.svg);--ag-icon-image-expanded:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/expanded.svg);--ag-icon-image-eye-slash:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/eye-slash.svg);--ag-icon-image-eye:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/eye.svg);--ag-icon-image-filter:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/filter.svg);--ag-icon-image-first:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/first.svg);--ag-icon-image-grip:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/grip.svg);--ag-icon-image-group:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/group.svg);--ag-icon-image-last:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/last.svg);--ag-icon-image-left:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/left.svg);--ag-icon-image-linked:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/linked.svg);--ag-icon-image-loading:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/loading.svg);--ag-icon-image-maximize:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/maximize.svg);--ag-icon-image-menu:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/menu.svg);--ag-icon-image-minimize:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/minimize.svg);--ag-icon-image-next:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/next.svg);--ag-icon-image-none:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/none.svg);--ag-icon-image-not-allowed:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/not-allowed.svg);--ag-icon-image-paste:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/paste.svg);--ag-icon-image-pin:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/pin.svg);--ag-icon-image-pivot:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/pivot.svg);--ag-icon-image-previous:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/previous.svg);--ag-icon-image-radio-button-off:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/radio-button-off.svg);--ag-icon-image-radio-button-on:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/radio-button-on.svg);--ag-icon-image-right:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/right.svg);--ag-icon-image-save:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/save.svg);--ag-icon-image-small-down:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/small-down.svg);--ag-icon-image-small-left:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/small-left.svg);--ag-icon-image-small-right:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/small-right.svg);--ag-icon-image-small-up:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/small-up.svg);--ag-icon-image-tick:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/tick.svg);--ag-icon-image-tree-closed:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/tree-closed.svg);--ag-icon-image-tree-indeterminate:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/tree-indeterminate.svg);--ag-icon-image-tree-open:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/tree-open.svg);--ag-icon-image-unlinked:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/unlinked.svg);--ag-icon-image-up:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/up.svg);--ag-icon-image-down:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/down.svg);--ag-icon-image-plus:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/plus.svg);--ag-icon-image-minus:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/minus.svg);--ag-icon-image-menu-alt:url(https://www.ag-grid.com/archive/31.3.4/theme-icons/quartz/menu-alt.svg)}@media (prefers-color-scheme:dark){.ag-theme-alpine-auto-dark .ag-icon:after{filter:invert(1)}}";
 
 function gatherText(node) {
+  if (node == null) return '';
   const text = new Array();
   function walk(node) {
     if (node.nodeType === Node.TEXT_NODE) {
-      text.push(node.textContent);
+      var _node$textContent;
+      text.push((_node$textContent = node.textContent) != null ? _node$textContent : '');
     } else {
       for (const child of node.childNodes) {
         walk(child);
@@ -63495,11 +63497,13 @@ const [store, setStore] = createStore({
   postings: null
 });
 function PostingsGrid(props) {
+  var _options$columnDefs;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const options = {
     columnDefs: [{
       field: 'applyBtn',
       headerName: 'Actions',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: props => {
         return props.value;
       }
@@ -63551,6 +63555,7 @@ function PostingsGrid(props) {
     }, {
       field: 'jobTitleBtn',
       headerName: 'Job Title',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cellRenderer: props => {
         return props.value;
       },
@@ -63582,7 +63587,7 @@ function PostingsGrid(props) {
     initialState: JSON.parse(localStorage.getItem('gps-postings-grid-state') || '{}'),
     rowData: unwrap(store.postings)
   };
-  options.columnDefs.forEach(x => {
+  (_options$columnDefs = options.columnDefs) == null || _options$columnDefs.forEach(x => {
     if ('field' in x) x.tooltipField = x.field;
   });
 
@@ -63594,6 +63599,7 @@ function PostingsGrid(props) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const AgGrid = src_default;
+  // noinspection JSUnusedAssignment
   return (() => {
     var _el$ = _tmpl$();
     insert(_el$, createComponent(AgGrid, mergeProps(options, {
@@ -63643,6 +63649,7 @@ Promise.all([dbPromise, pageLoadPromise]).then(([db]) => {
     let tableElement;
     function updateTable() {
       const newTable = document.querySelector(postingTableSelector);
+      if (!newTable) return false;
       if (tableElement == newTable) return false;
       tableElement = newTable;
       return true;
@@ -63659,20 +63666,23 @@ Promise.all([dbPromise, pageLoadPromise]).then(([db]) => {
       }
       const postings = new Array();
       for (const posting of tableElement.querySelectorAll(postingRowSelector)) {
+        var _posting$classList$va, _posting$classList$va2, _item$applyBtn;
         const item = {
           applyBtn: posting.querySelector(applyBtnSelector),
           applicationStatus: gatherText(posting.querySelector(applicationStatusSelector)),
           term: gatherText(posting.querySelector(termSelector)),
-          id: posting.classList.values().find(x => x.startsWith('posting')).slice(7),
+          id: (_posting$classList$va = (_posting$classList$va2 = posting.classList.values().find(x => x.startsWith('posting'))) == null ? void 0 : _posting$classList$va2.slice(7)) != null ? _posting$classList$va : 'BAD ID',
           jobTitleBtn: posting.querySelector(jobTitleSelector),
           organization: gatherText(posting.querySelector(organisationSelector)),
           location: gatherText(posting.querySelector(locationSelector)),
           applicationDeadline: new Date(gatherText(posting.querySelector(applicationDeadlineSelector)))
         };
         postings.push(item);
-        item.applyBtn.remove();
-        item.jobTitleBtn.remove();
-        item.jobTitleBtn.style['max-width'] = 'revert';
+        (_item$applyBtn = item.applyBtn) == null || _item$applyBtn.remove();
+        if (item.jobTitleBtn != null) {
+          item.jobTitleBtn.remove();
+          item.jobTitleBtn.style.maxWidth = 'revert';
+        }
       }
       enrichPostings(db, postings).then(x => {
         setStore('postings', x);
@@ -63727,10 +63737,11 @@ function Settings(props) {
     };
     insert(_el$4, () => copiedText() ? 'Copied!' : 'Export');
     _el$5.$$click = async () => {
+      var _store$postings;
       const data = prompt('Import data');
       if (!data) return;
       await importDb(props.db, data);
-      enrichPostings(props.db, store.postings).then(x => {
+      enrichPostings(props.db, (_store$postings = store.postings) != null ? _store$postings : []).then(x => {
         setStore('postings', x);
       }).catch(error_handler);
     };
