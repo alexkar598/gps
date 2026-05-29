@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @description Compass userscript
 // @match       *://icope.concordia.ca/myAccount/*
-// @version     0.1.0
+// @version     0.2.0
 // @author      undefined
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/ui@0.7
@@ -63538,8 +63538,7 @@ function PostingsGrid(props) {
       }
     }, {
       field: 'applicationStatus',
-      headerName: 'Application Status',
-      hide: true
+      headerName: 'Application Status'
     }, {
       field: 'gps_ref',
       headerName: 'Reference',

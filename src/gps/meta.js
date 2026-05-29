@@ -4,7 +4,7 @@
 // @description Compass userscript
 // @match       *://icope.concordia.ca/myAccount/*
 // @grant       GM_addStyle
-// @version     0.1.0
+// @version     0.2.0
 // @author      process.env.AUTHOR
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/ui@0.7

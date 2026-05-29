@@ -48,7 +48,7 @@ function PostingsGrid(props: { db: IDBDatabase }) {
               return props.value;
             },
           },
-          { field: 'applicationStatus', headerName: 'Application Status', hide: true },
+          { field: 'applicationStatus', headerName: 'Application Status' },
           {
             field: 'gps_ref',
             headerName: 'Reference',
